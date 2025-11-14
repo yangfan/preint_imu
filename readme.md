@@ -24,20 +24,21 @@
        1. preintegration factors: $[\mathbf{r}^T_{\Delta R_{ij}}, \ \mathbf{r}^T_{\Delta v_{ij}}, \ \mathbf{r}^T_{\Delta p_{ij}}]^T$, jacobian see reference[1]
        2. prior factors: 
 
-            $[\mathrm{Log}(R_{i,prior}^T R_i)^T, \ (p_i - p_{i, prior})^T, (v_i - v_{i, prior})^T, \ (b_{ai} - b_{ai, prior})^T, \ (b_{gi} - b_{gi, prior})^T ]^T$
+          $[\mathrm{Log}(R_{i,prior}^T R_i)^T, \ (p_i - p_{i, prior})^T, (v_i - v_{i, prior})^T, \ (b_{ai} - b_{ai, prior})^T, \ (b_{gi} - b_{gi, prior})^T ]^T$
 
-            $\mathrm{Jacobian} = \mathrm{diag}(J^{-1}_r(R_{i,prior}^T R_i), \ \mathbf{I}_3, \ \mathbf{I}_3, \ \mathbf{I}_3, \ \mathbf{I}_3)$
+          $\mathrm{Jacobian} = \mathrm{diag}(J_r^{-1}(R_{i,prior}^T R_i),  \mathbf{I}_3, \mathbf{I}_3,  \mathbf{I}_3,  \mathbf{I}_3)$
 
-        3. Odom factor: $v_i - v_{i, odom}$;  jacobian: $\mathbf{I}_3$
-        4. GNSS factor: 
+
+        4. Odom factor: $v_i - v_{i, odom}$;  jacobian: $\mathbf{I}_3$
+        5. GNSS factor: 
 
             $[\mathrm{Log}(R_{i,gnss}^T R_i)^T, (p_i - p_{i, gnss})^T]^T$
 
             $\mathrm{Jacobian} = \mathrm{diag}(J^{-1}(R_{i,gnss}^T R_i), \ \mathbf{I}_3)$
 
-        5. GNSS position only factor: $p_i - p_{i, gnss}$, jacobian = $\mathbf{I}_3$
-        6. Gyroscope Bias factor: $b_{g, j} - b_{g, i}$,   jacobian = $[-\mathbf{I}_3, \mathbf{I}_3]$ 
-        7. Accelerometer Bias factor: $b_{a, j} - b_{a, i}$,   jacobian = $[-\mathbf{I}_3, \mathbf{I}_3]$ 
+        6. GNSS position only factor: $p_i - p_{i, gnss}$, jacobian = $\mathbf{I}_3$
+        7. Gyroscope Bias factor: $b_{g, j} - b_{g, i}$,   jacobian = $[-\mathbf{I}_3, \mathbf{I}_3]$ 
+        8. Accelerometer Bias factor: $b_{a, j} - b_{a, i}$,   jacobian = $[-\mathbf{I}_3, \mathbf{I}_3]$ 
 
 - Testing
     - Rotation test: comparing gins system with imu integrator given constant angular velocity, the state estimation from imu preintegration should be same with regular imu integration.
