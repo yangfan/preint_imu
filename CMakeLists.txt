@@ -13,6 +13,7 @@ find_package(gflags REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(Sophus REQUIRED)
 
+# set path to find g2o if it was not installed to the default root directory
 set(G2O_ROOT "/home/fan/ssd/study/slambook2/3rdparty/g2o/install")
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 Find_Package(G2O REQUIRED)

@@ -46,11 +46,14 @@
     - error state kalman filter: starting from the same states the relative motion between two consecutive gnss data and the state estimation from IMU preintegration should be same with or close enough to the results from error state kalman filter.
 - Results
     - As is mentioned in previous project [error state kalman filter](https://github.com/yangfan/eskf_imu), IMU sensor data can be used to estimate motion in a certain amount of time interval. It is especially helpful for the navigation in GPS-denied environment as shown in figure below:
-    ![gps-denied](data/pic/gps_denied.png)
-    - However the state estimation from IMU data will diverge significantly due to accumulated error. 
-    ![diverge](data/pic/sensor_imu_only2d.png)
 
-    - To resolve the accumulated error of imu integration, it's natural to combine different source of sensor data, e.g., odometry, imu, gps. One method is error-state kalman filter which is able to predict the system state based on imu data and make the correction once the odom or gnss observation come. Due to the Markov assumption, the prediction and correction of Kalman filter are restricted to more recent time step and the new observation cannot be used to correct previous trajectory. Moreover in KF the nonlinear system is simplified as a linear system by the first-order tylor expansion, accuracy is influenced by the linearity of the approximation point. More detail about error state kalman filter can be found [here](https://github.com/yangfan/eskf_imu) 
+        ![gps-denied](data/pic/gps_denied.png)
+
+    - However the state estimation from IMU data will diverge significantly due to accumulated error. 
+
+        ![diverge](data/pic/sensor_imu_only2d.png)
+
+    - To resolve the accumulated error of imu integration, it's natural to combine different source of sensor data, e.g., odometry, imu, gps. One method is error-state kalman filter which is able to predict the system state based on imu data and make the correction once the odom or gnss observation come. Due to the Markov assumption, the prediction and correction of Kalman filter are restricted to more recent time step and the new observation cannot be used to correct previous trajectory. Moreover in KF the nonlinear system is simplified as a linear system by the first-order tylor expansion, accuracy is influenced by the linearity of the approximation point. More detail about error state kalman filter can be found [here](https://github.com/yangfan/eskf_imu). 
     - Another method is the pose graph optimization which use the iterative method to solve the least square problem, i.e., Gauss–Newton algorithm and levenberg-marquardt method. This makes the system more robust to the nolinear world. Besides, pose graph method is able to optimze the whole trajectory based on all received data. Figures below show the results on two different dataset.
 
     - sensor data result
@@ -64,6 +67,29 @@
         ![3d plot](data/pic/shape3d.png)
 
         ![2d plot](data/pic/shape2d.png)
+    
+    - Besides involved in the pose graph optimization as the velocity factor, the odom data can also be used to correct the relative velocity of IMU preintegration, which is similar to the correction step of kalman filter. The odom correction improves the accuracy of the state estimate during the IMU preintegration when valid GNSS data is lost for a long period amount of time. The state variable in this case is defined as the relative velocity $\Delta v_{ij}$ of IMU preintegration while the observation is $\tilde{v}_j$ which is obtained from odom data. The observation function is $\mathrm{h}(\Delta v_{ij}) = v_j = R_i \Delta v_{ij} + v_i + g \Delta t_{ij}$. The Jacobian is $H = \frac{\partial \mathrm{h}}{\partial \Delta v_{ij}} = R_i$. The covariance matrix $P_{vel}$ can be obtained from the preintegrated measurement covariance. The covariance of odom sensor noise is denoted by $V$. The correction step is following:
+     
+       1. Compute Kalman gain: $K = P_{vel} H^T (H P_{vel} H^T + V)^{-1}$
+       2. Compute update: $\delta \Delta v_{ij} = K (\tilde{v}_j - \mathrm{h}(\Delta v_{ij}))$
+       3. Update preintegrated relative velocity $\Delta v_{ij} \leftarrow \Delta v_{ij} + \delta \Delta v_{ij}$
+    
+    - Here are the results:
+
+      - No odom correction and only use gnss data with valid heading for optimization. There exists a few gaps and deviations in the trajectory, and spikes are also found in velocity curve:
+            
+        ![no correction](data/pic/no_correction.png)
+
+        ![no correction vel](data/pic/no_correction_vel.png)
+    
+      - Use odom correction and only use gnss data with valid heading for optimization. The velocity remains stable due to the odom correction. The gaps are not found in the figure below: 
+
+        ![odom correction](data/pic/correction.png)
+
+        ![odom correction vel](data/pic/correction_vel.png)
+
+      - Note that unlike the typical correction step in Kalman filter, the covariance matrix $P_{vel}$ is not updated to the preintegrator. Because the update will break the symmetric and positive-definite properties of preintegration covariance matrix. Therefore the Cholesky decomposition for solving linear equation in optimization interation will fail.
+    
 ### Dependencies
 - [Eigen](https://gitlab.com/libeigen/eigen)
 - [Sophus](https://github.com/strasdat/Sophus)

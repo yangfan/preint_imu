@@ -76,10 +76,44 @@ bool GINS::add_gnss(const GNSS &gnss_data) {
 }
 
 bool GINS::add_odom(const Odom &odom_data) {
+  if (odom_data.timestamp() < last_odom_.timestamp()) {
+    LOG(WARNING) << "Obsolete odom data.";
+    return false;
+  }
+  if (odom_correction_) {
+    odom_correct(odom_data);
+  }
   last_odom_ = odom_data;
   last_odom_used = false;
-  IMUState predicted_state = preintegrator_->predict(prev_kf_.state);
   return true;
+}
+
+void GINS::odom_correct(const Odom &odom_data) {
+  const Eigen::Matrix3d H_dv = prev_kf_.state.rot.matrix();
+  const Eigen::Matrix3d P_dv = preintegrator_->cov_rvp().block<3, 3>(3, 3);
+  const Eigen::Matrix3d V_dv =
+      Eigen::Matrix3d::Identity() * noise_.var_odom * 1e-5;
+  const Eigen::Matrix3d K = P_dv * H_dv.transpose() *
+                            (H_dv * P_dv * H_dv.transpose() + V_dv).inverse();
+
+  const Eigen::Vector3d predicted_vj =
+      prev_kf_.state.rot * preintegrator_->measurement().vel +
+      prev_kf_.state.vel +
+      prev_kf_.state.gravity *
+          (odom_data.timestamp() - prev_kf_.state.timestamp);
+  const Eigen::Vector3d vel_b(odom_data.velocity(), 0.0, 0.0);
+  const Eigen::Vector3d observed_vj =
+      preintegrator_->predict(prev_kf_.state).rot * vel_b;
+  // LOG(INFO) << "vel diff: " << (observed_vj - predicted_vj).transpose();
+  const Eigen::Vector3d delta_dv = K * (observed_vj - predicted_vj);
+  // LOG(INFO) << "K:\n" << K;
+  // LOG(INFO) << "delta dv: " << delta_dv.transpose();
+  preintegrator_->update_dv(delta_dv);
+  // cov will not be symmetric and hence not positive-definite if updated as KF
+  // usually do in the correction step. This will have impact on Cholesky
+  // decomposition for solving linear equation in the optimization iterations.
+  // preintegrator_->update_cov_v((Eigen::Matrix3d::Identity() - K * H_dv) *
+  // P_dv);
 }
 
 bool GINS::optimize() {

@@ -39,6 +39,8 @@ public:
   IMUState state() const { return preintegrator_->predict(prev_kf_.state); }
   Sophus::SE3d origin() const { return origin_; }
 
+  void set_odom_correction() { odom_correction_ = true; }
+
 private:
   Keyframe curr_kf_;
   Keyframe prev_kf_;
@@ -61,4 +63,7 @@ private:
   Eigen::Matrix3d gnss_pos_info_ = Eigen::Matrix3d::Identity();
   Eigen::Matrix<double, 6, 6> gnss_info_ =
       Eigen::Matrix<double, 6, 6>::Identity();
+
+  bool odom_correction_ = false;
+  void odom_correct(const Odom &odom_data);
 };

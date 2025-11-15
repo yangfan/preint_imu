@@ -103,12 +103,21 @@ public:
   }
 
   Eigen::Matrix<double, 9, 9> info() const { return cov_preint_.inverse(); }
+  // for odom correction
+  Eigen::Matrix<double, 9, 9> cov_rvp() const { return cov_preint_; }
+  IMUState measurement() const { return measurement_ij_; }
+  void update_dv(const Eigen::Vector3d delta_dv) {
+    measurement_ij_.vel += delta_dv;
+  }
+  void update_cov_v(const Eigen::Matrix3d cov_v) {
+    cov_preint_.block<3, 3>(3, 3) = cov_v;
+  }
 
 private:
   IMUState measurement_ij_{}; // delta state from time step i to current, say k
   Eigen::Matrix<double, 9, 9> cov_preint_ =
       Eigen::Matrix<double, 9, 9>::Zero(); // covariance of preintegration
-                                           // noise, i.e., err p, v, R
+                                           // noise, i.e., err R, v, p
   Eigen::Matrix<double, 6, 6> cov_noise_ =
       Eigen::Matrix<double, 6, 6>::Zero(); // covariance of imu measurement
                                            // noise, i.e., err acc, gyro

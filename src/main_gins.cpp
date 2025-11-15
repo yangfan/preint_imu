@@ -14,6 +14,8 @@ DEFINE_double(antenna_y, -0.20, "Antenna pos y to IMU");
 DEFINE_double(antenna_angle, 12.06, "Antenna angle (deg) to IMU"); // deg
 DEFINE_bool(only_gnss_valid_heading, false,
             "Use only gnss data with valid heading");
+DEFINE_bool(odom_correction, false,
+            "correct velocity of IMU preintegration using odom data");
 
 int main(int argc, char **argv) {
   FLAGS_log_dir = std::string("./logs");
@@ -27,6 +29,9 @@ int main(int argc, char **argv) {
   Processor processor;
   Initializer initializer;
   GINS gins;
+  if (FLAGS_odom_correction) {
+    gins.set_odom_correction();
+  }
 
   auto save_state = [&](const IMUState state) {
     processor.write(ofs, state.timestamp);
@@ -61,8 +66,6 @@ int main(int argc, char **argv) {
 
   GNSS::set_config(FLAGS_antenna_x, FLAGS_antenna_y, FLAGS_antenna_angle);
   auto gnss_processor = [&](GNSS &gnss_data) {
-    // if (!gins.noise_initialized() || !gnss_data.convert_utm() ||
-    //     !gnss_data.valid_heading()) {
     if (!gins.noise_initialized() || !gnss_data.convert_utm()) {
       return;
     }
