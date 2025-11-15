@@ -68,10 +68,14 @@
 
         ![2d plot](data/pic/shape2d.png)
     
-    - Besides involved in the pose graph optimization as the velocity factor, the odom data can also be used to correct the relative velocity of IMU preintegration, which is similar to the correction step of kalman filter. The odom correction improves the accuracy of the state estimate during the IMU preintegration when valid GNSS data is lost for a long period amount of time. The state variable in this case is defined as the relative velocity $\Delta v_{ij}$ of IMU preintegration while the observation is $\tilde{v}_j$ which is obtained from odom data. The observation function is $\mathrm{h}(\Delta v_{ij}) = v_j = R_i \Delta v_{ij} + v_i + g \Delta t_{ij}$. The Jacobian is $H = \frac{\partial \mathrm{h}}{\partial \Delta v_{ij}} = R_i$. The covariance matrix $P_{vel}$ can be obtained from the preintegrated measurement covariance. The covariance of odom sensor noise is denoted by $V$. The correction step is following:
-     
+    - Besides involved in the pose graph optimization as the velocity factor, the odom data can also be used to correct the relative velocity of IMU preintegration, which is similar to the correction step of kalman filter. The odom correction improves the accuracy of the state estimate during the IMU preintegration when valid GNSS data is lost for a long period amount of time. The state variable in this case is defined as the relative velocity $\Delta v_{ij}$ of IMU preintegration while the observation is $v_{j,obs}$ which is obtained from odom data. The observation function is $\mathrm{h}(\Delta v_{ij}) = v_j = R_i \Delta v_{ij} + v_i + g \Delta t_{ij}$. The covariance matrix $P_{vel}$ can be obtained from the preintegrated measurement covariance. The covariance of odom sensor noise is denoted by $V$. The Jacobian is
+    
+      $$H = \frac{\partial \mathrm{h}}{\partial \delta \Delta v_{ij}} = R_i$$
+
+      The correction step is following:
+       
        1. Compute Kalman gain: $K = P_{vel} H^T (H P_{vel} H^T + V)^{-1}$
-       2. Compute update: $\delta \Delta v_{ij} = K (\tilde{v}_j - \mathrm{h}(\Delta v_{ij}))$
+       2. Compute update: $\delta \Delta v_{ij} = K (v_{j,obs} - \mathrm{h}(\Delta v_{ij}))$
        3. Update preintegrated relative velocity $\Delta v_{ij} \leftarrow \Delta v_{ij} + \delta \Delta v_{ij}$
     
     - Here are the results:
