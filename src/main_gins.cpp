@@ -1,7 +1,6 @@
 #include <gflags/gflags.h>
 #include <glog/logging.h>
 #include <iostream>
-#include <string>
 
 #include "gins.h"
 #include "initializer.h"
@@ -18,7 +17,7 @@ DEFINE_bool(odom_correction, false,
             "correct velocity of IMU preintegration using odom data");
 
 int main(int argc, char **argv) {
-  FLAGS_log_dir = std::string("./logs");
+  // FLAGS_log_dir = std::string("./logs");
   FLAGS_stderrthreshold = google::INFO;
   FLAGS_colorlogtostderr = true;
   google::InitGoogleLogging(argv[0]);

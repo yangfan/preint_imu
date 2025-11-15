@@ -5,3 +5,4 @@ lib/
 data/output/
 data/input/
 .cache/
+.*

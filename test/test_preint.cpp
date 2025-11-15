@@ -358,7 +358,7 @@ void optimize(IMUState &last_state, IMUState &this_state,
 }
 
 int main(int argc, char **argv) {
-  FLAGS_log_dir = std::string("./logs");
+  // FLAGS_log_dir = std::string("./logs");
   FLAGS_stderrthreshold = google::ERROR;
   FLAGS_colorlogtostderr = true;
   testing::InitGoogleTest(&argc, argv);

@@ -1,7 +1,6 @@
 #include <fstream>
 #include <gflags/gflags.h>
 #include <glog/logging.h>
-#include <string>
 
 #include "eskf.h"
 #include "initializer.h"
@@ -16,7 +15,7 @@ DEFINE_double(antenna_angle, 12.06, "Antenna angle (deg) to IMU"); // deg
 DEFINE_bool(use_odom, true, "Use odom for the correction.");
 
 int main(int argc, char **argv) {
-  FLAGS_log_dir = std::string("./logs");
+  // FLAGS_log_dir = std::string("./logs");
   FLAGS_stderrthreshold = google::INFO;
   FLAGS_colorlogtostderr = true;
 

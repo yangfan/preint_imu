@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 4.0)
 project(preint_imu)
 
-set(CXX_STANDARD 17)
-set(CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
@@ -14,7 +15,7 @@ find_package(Eigen3 REQUIRED)
 find_package(Sophus REQUIRED)
 
 # set path to find g2o if it was not installed to the default root directory
-set(G2O_ROOT "/home/fan/ssd/study/slambook2/3rdparty/g2o/install")
+# set(G2O_ROOT "/Users/fan/Temp/g2o/install")
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 Find_Package(G2O REQUIRED)
 message(STATUS "include: ${G2O_INCLUDE_DIR}")
